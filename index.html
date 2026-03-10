@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DGPOGP — Dead Guy's Picture On Green Paper</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Special+Elite&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #2d6a2d;
+    --green-light: #3d8b3d;
+    --green-dark: #1a3d1a;
+    --green-muted: #4a7c4a;
+    --cream: #f5f0e8;
+    --cream-dark: #e8e0cc;
+    --gold: #c9a227;
+    --gold-light: #e8c040;
+    --ink: #1a1209;
+    --ink-light: #2e2010;
+    --gray: #8a8070;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background-color: var(--cream);
+    color: var(--ink);
+    font-family: 'Courier Prime', monospace;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.5;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(45,106,45,0.03) 3px, rgba(45,106,45,0.03) 4px);
+    pointer-events: none;
+    z-index: 999;
+  }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--cream-dark); }
+  ::-webkit-scrollbar-thumb { background: var(--green); }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 900;
+    background: rgba(26, 61, 26, 0.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(201,162,39,0.2);
+    padding: 0 32px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 18px;
+    color: var(--cream);
+    letter-spacing: 1px;
+  }
+  .nav-logo span { color: var(--gold); }
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+  }
+  .nav-links a {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(245,240,232,0.6);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-cta {
+    background: var(--gold) !important;
+    color: var(--ink) !important;
+    padding: 8px 18px !important;
+    font-weight: 700 !important;
+  }
+  .nav-cta:hover { background: var(--gold-light) !important; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    background: var(--green-dark);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 100px 20px 60px;
+  }
+  .hero-border { position: absolute; inset: 16px; border: 2px solid rgba(201,162,39,0.4); pointer-events: none; z-index: 2; }
+  .hero-border::before { content: ''; position: absolute; inset: 6px; border: 1px solid rgba(201,162,39,0.2); }
+  .hero-border::after { content: '✦'; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); color: var(--gold); font-size: 18px; background: var(--green-dark); padding: 0 8px; }
+  .corner { position: absolute; width: 40px; height: 40px; z-index: 3; color: var(--gold); font-size: 24px; opacity: 0.6; }
+  .corner.tl { top: 24px; left: 24px; }
+  .corner.tr { top: 24px; right: 24px; transform: scaleX(-1); }
+  .corner.bl { bottom: 24px; left: 24px; transform: scaleY(-1); }
+  .corner.br { bottom: 24px; right: 24px; transform: scale(-1); }
+  .hero-lines { position: absolute; inset: 0; background-image: repeating-linear-gradient(-45deg, transparent, transparent 8px, rgba(255,255,255,0.015) 8px, rgba(255,255,255,0.015) 9px); pointer-events: none; }
+  .hero-content { position: relative; z-index: 10; text-align: center; max-width: 860px; }
+  .eyebrow { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 6px; color: var(--gold); text-transform: uppercase; margin-bottom: 24px; opacity: 0; animation: fadeUp 0.8s ease forwards 0.2s; }
+
+  /* BANNER IMAGE */
+  .hero-banner {
+    width: 100%;
+    max-width: 820px;
+    margin: 0 auto 32px;
+    border: 2px solid rgba(201,162,39,0.4);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 60px rgba(201,162,39,0.1);
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.1s;
+    display: block;
+  }
+  .hero-banner img { width: 100%; display: block; }
+
+  .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(52px, 10vw, 120px); font-weight: 900; color: var(--cream); line-height: 0.9; letter-spacing: -2px; margin-bottom: 8px; opacity: 0; animation: fadeUp 0.8s ease forwards 0.4s; }
+  .hero-title span { color: var(--gold); display: block; }
+  .hero-subtitle { font-family: 'Special Elite', cursive; font-size: clamp(13px, 2vw, 18px); color: rgba(245,240,232,0.6); letter-spacing: 2px; margin-bottom: 40px; opacity: 0; animation: fadeUp 0.8s ease forwards 0.6s; }
+  .hero-tagline { font-family: 'Special Elite', cursive; font-size: clamp(16px, 2.5vw, 22px); color: var(--cream); max-width: 580px; margin: 0 auto 48px; line-height: 1.7; opacity: 0; animation: fadeUp 0.8s ease forwards 0.8s; }
+  .hero-tagline em { color: var(--gold); font-style: normal; border-bottom: 1px solid var(--gold); }
+  .skull-wrap { font-size: 72px; margin-bottom: 24px; opacity: 0; animation: fadeUp 0.8s ease forwards 0.1s, float 4s ease-in-out infinite 1s; filter: drop-shadow(0 0 20px rgba(201,162,39,0.4)); }
+  .cta-group { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; opacity: 0; animation: fadeUp 0.8s ease forwards 1s; }
+  .btn-primary { background: var(--gold); color: var(--ink); font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 16px 36px; border: none; cursor: pointer; position: relative; transition: all 0.2s; text-decoration: none; display: inline-block; clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%); }
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,162,39,0.4); }
+  .btn-secondary { background: transparent; color: var(--cream); font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 14px 34px; border: 1px solid rgba(245,240,232,0.3); cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block; }
+  .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* TICKER */
+  .ticker { background: var(--gold); padding: 10px 0; overflow: hidden; white-space: nowrap; }
+  .ticker-inner { display: inline-block; animation: ticker 30s linear infinite; font-family: 'Courier Prime', monospace; font-size: 12px; font-weight: 700; letter-spacing: 3px; color: var(--ink); }
+
+  /* NARRATIVE */
+  .narrative { background: var(--cream); padding: 100px 20px; position: relative; }
+  .narrative-inner { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .bill-mockup { position: relative; background: var(--green); border-radius: 4px; padding: 32px; box-shadow: 4px 4px 0 var(--green-dark), 8px 8px 0 rgba(0,0,0,0.2); border: 1px solid var(--green-light); transform: rotate(-2deg); transition: transform 0.3s ease; overflow: hidden; }
+  .bill-mockup:hover { transform: rotate(0deg) scale(1.02); }
+  .bill-mockup img { width: 100%; display: block; border-radius: 2px; }
+  .bill-border-inner { position: absolute; inset: 8px; border: 1px solid rgba(201,162,39,0.25); pointer-events: none; border-radius: 2px; z-index: 2; }
+  .narrative-text h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 4vw, 42px); font-weight: 900; line-height: 1.15; margin-bottom: 24px; color: var(--ink); }
+  .narrative-text h2 span { color: var(--green); }
+  .narrative-text p { font-family: 'Special Elite', cursive; font-size: 16px; line-height: 1.9; color: var(--ink-light); margin-bottom: 16px; opacity: 0.85; }
+  .narrative-text p strong { color: var(--green); font-style: normal; }
+
+  /* TOKENOMICS */
+  .tokenomics { background: var(--green-dark); padding: 100px 20px; position: relative; overflow: hidden; }
+  .tokenomics::before { content: ''; position: absolute; inset: 0; background-image: repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(255,255,255,0.015) 40px, rgba(255,255,255,0.015) 41px), repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(255,255,255,0.015) 40px, rgba(255,255,255,0.015) 41px); }
+  .section-label { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 6px; text-transform: uppercase; color: var(--gold); text-align: center; margin-bottom: 16px; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: clamp(32px, 5vw, 52px); font-weight: 900; text-align: center; color: var(--cream); margin-bottom: 64px; position: relative; }
+  .section-title::after { content: ''; display: block; width: 60px; height: 2px; background: var(--gold); margin: 16px auto 0; }
+  .toko-grid { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2px; position: relative; z-index: 2; }
+  .toko-card { background: rgba(245,240,232,0.04); border: 1px solid rgba(201,162,39,0.15); padding: 32px 28px; transition: all 0.3s ease; position: relative; overflow: hidden; }
+  .toko-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 0; background: var(--gold); transition: height 0.3s ease; }
+  .toko-card:hover::before { height: 100%; }
+  .toko-card:hover { background: rgba(245,240,232,0.07); }
+  .toko-pct { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 900; color: var(--gold); line-height: 1; margin-bottom: 8px; }
+  .toko-name { font-family: 'Courier Prime', monospace; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--cream); margin-bottom: 12px; }
+  .toko-desc { font-family: 'Special Elite', cursive; font-size: 13px; color: rgba(245,240,232,0.5); line-height: 1.7; }
+  .toko-amount { font-family: 'Courier Prime', monospace; font-size: 11px; color: var(--gold); opacity: 0.6; margin-top: 12px; letter-spacing: 1px; }
+
+  /* WHITELIST */
+  .whitelist { background: var(--cream); padding: 100px 20px; position: relative; }
+  .whitelist-inner { max-width: 640px; margin: 0 auto; text-align: center; }
+  .whitelist-inner .section-title { color: var(--ink); }
+  .whitelist-inner .section-title::after { margin: 16px auto 0; }
+  .whitelist-perks { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 48px; }
+  .perk { background: var(--green-dark); color: var(--cream); font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; padding: 10px 20px; border: 1px solid rgba(201,162,39,0.3); }
+  .perk span { color: var(--gold); margin-right: 6px; }
+  .form-wrap { background: var(--ink); padding: 48px 40px; position: relative; }
+  .form-wrap::before { content: ''; position: absolute; inset: 6px; border: 1px solid rgba(201,162,39,0.15); pointer-events: none; }
+  .wallet-btn { width: 100%; background: rgba(201,162,39,0.1); border: 1px solid rgba(201,162,39,0.4); color: var(--gold); font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; padding: 16px; cursor: pointer; transition: all 0.2s; margin-bottom: 20px; display: block; }
+  .wallet-btn:hover { background: rgba(201,162,39,0.2); }
+  .form-divider { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 3px; color: rgba(245,240,232,0.3); text-transform: uppercase; margin-bottom: 20px; }
+  .form-row { display: flex; gap: 0; margin-bottom: 16px; }
+  .form-input { flex: 1; background: rgba(245,240,232,0.05); border: 1px solid rgba(201,162,39,0.2); border-right: none; color: var(--cream); font-family: 'Courier Prime', monospace; font-size: 13px; padding: 14px 18px; outline: none; transition: border-color 0.2s; }
+  .form-input:focus { border-color: var(--gold); }
+  .form-input::placeholder { color: rgba(245,240,232,0.3); }
+  .form-btn { background: var(--gold); color: var(--ink); font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; padding: 14px 24px; border: none; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
+  .form-btn:hover { background: var(--gold-light); }
+  .form-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .form-note { font-family: 'Special Elite', cursive; font-size: 12px; color: rgba(245,240,232,0.3); margin-top: 16px; line-height: 1.7; }
+  .success-msg { display: none; font-family: 'Special Elite', cursive; font-size: 16px; color: var(--gold); text-align: center; padding: 24px; border: 1px solid rgba(201,162,39,0.3); margin-top: 16px; line-height: 1.8; }
+  .success-msg a { color: var(--gold); font-weight: 700; }
+  .error-msg { display: none; font-family: 'Courier Prime', monospace; font-size: 12px; color: #e87070; margin-top: 8px; }
+
+  /* ROADMAP */
+  .roadmap { background: var(--cream-dark); padding: 100px 20px; }
+  .roadmap-inner { max-width: 700px; margin: 0 auto; }
+  .roadmap-inner .section-title { color: var(--ink); }
+  .roadmap-track { position: relative; padding-left: 48px; }
+  .roadmap-track::before { content: ''; position: absolute; left: 15px; top: 0; bottom: 0; width: 2px; background: repeating-linear-gradient(to bottom, var(--green) 0px, var(--green) 8px, transparent 8px, transparent 16px); }
+  .roadmap-item { position: relative; padding: 32px 0 32px 32px; border-bottom: 1px solid rgba(45,106,45,0.15); }
+  .roadmap-item:last-child { border-bottom: none; }
+  .roadmap-dot { position: absolute; left: -40px; top: 36px; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--green); background: var(--cream-dark); display: flex; align-items: center; justify-content: center; }
+  .roadmap-dot.active { background: var(--green); box-shadow: 0 0 0 4px rgba(45,106,45,0.2); }
+  .roadmap-dot.active::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--cream); }
+  .roadmap-phase { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .roadmap-title { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 700; color: var(--ink); margin-bottom: 12px; }
+  .roadmap-items { list-style: none; }
+  .roadmap-items li { font-family: 'Special Elite', cursive; font-size: 14px; color: var(--ink-light); opacity: 0.75; padding: 4px 0 4px 16px; position: relative; line-height: 1.6; }
+  .roadmap-items li::before { content: '→'; position: absolute; left: 0; color: var(--green); }
+
+  /* COUNTDOWN */
+  .countdown-bar { background: var(--green); padding: 32px 20px; text-align: center; position: relative; overflow: hidden; }
+  .countdown-bar::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.03) 20px, rgba(255,255,255,0.03) 40px); }
+  .countdown-label { font-family: 'Courier Prime', monospace; font-size: 10px; letter-spacing: 5px; text-transform: uppercase; color: rgba(245,240,232,0.6); margin-bottom: 16px; position: relative; z-index: 2; }
+  .countdown-date { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 3px; color: var(--gold); margin-bottom: 20px; position: relative; z-index: 2; }
+  .countdown-digits { display: flex; justify-content: center; gap: 24px; position: relative; z-index: 2; }
+  .count-unit { text-align: center; }
+  .count-num { font-family: 'Playfair Display', serif; font-size: clamp(40px, 8vw, 72px); font-weight: 900; color: var(--cream); line-height: 1; display: block; min-width: 80px; }
+  .count-sep { font-family: 'Playfair Display', serif; font-size: 60px; color: var(--gold); line-height: 1; opacity: 0.5; align-self: flex-start; margin-top: 4px; }
+  .count-label { font-family: 'Courier Prime', monospace; font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: rgba(245,240,232,0.5); margin-top: 6px; }
+  .countdown-expired { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--gold); position: relative; z-index: 2; display: none; }
+
+  /* FOOTER */
+  footer { background: var(--ink); padding: 48px 20px 32px; text-align: center; position: relative; }
+  footer::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+  .footer-logo { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; color: var(--cream); margin-bottom: 8px; }
+  .footer-logo span { color: var(--gold); }
+  .footer-ticker { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 4px; color: rgba(245,240,232,0.3); margin-bottom: 32px; }
+  .footer-links { display: flex; justify-content: center; gap: 32px; margin-bottom: 32px; flex-wrap: wrap; }
+  .footer-links a { font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: rgba(245,240,232,0.4); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--gold); }
+  .footer-disclaimer { font-family: 'Special Elite', cursive; font-size: 11px; color: rgba(245,240,232,0.2); max-width: 600px; margin: 0 auto; line-height: 1.8; }
+  .social-row { display: flex; justify-content: center; gap: 16px; margin-bottom: 32px; }
+  .social-btn { background: rgba(245,240,232,0.05); border: 1px solid rgba(245,240,232,0.1); color: var(--cream); font-family: 'Courier Prime', monospace; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; padding: 10px 20px; cursor: pointer; text-decoration: none; display: inline-block; transition: all 0.2s; }
+  .social-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-12px); } }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--ink); border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; vertical-align: middle; margin-right: 6px; }
+
+  @media (max-width: 700px) {
+    .narrative-inner { grid-template-columns: 1fr; gap: 40px; }
+    .bill-mockup { transform: rotate(0deg); }
+    .form-row { flex-direction: column; }
+    .form-input { border-right: 1px solid rgba(201,162,39,0.2); border-bottom: none; }
+    .countdown-digits { gap: 12px; }
+    .count-num { min-width: 60px; font-size: 40px; }
+    .count-sep { font-size: 36px; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">DG<span>P</span>OGP</div>
+  <div class="nav-links">
+    <a href="#tokenomics">Tokenomics</a>
+    <a href="#whitelist">Whitelist</a>
+    <a href="#roadmap">Roadmap</a>
+    <a href="https://x.com/dgpogp" target="_blank" rel="noopener">𝕏 Twitter</a>
+    <a href="#whitelist" class="nav-cta">Join Whitelist</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-lines"></div>
+  <div class="hero-border"></div>
+  <div class="corner tl">⌐</div>
+  <div class="corner tr">⌐</div>
+  <div class="corner bl">⌐</div>
+  <div class="corner br">⌐</div>
+
+  <div class="hero-content">
+    <p class="eyebrow">Solana Blockchain &nbsp;·&nbsp; SPL Token &nbsp;·&nbsp; Est. 2026</p>
+    <h1 class="hero-title">
+      DGPOGP
+      <span>Dead Guy's Picture</span>
+      <span>On Green Paper</span>
+    </h1>
+    <p class="hero-subtitle">Dead Guy's Picture On Green Paper &nbsp;·&nbsp; $DGPOGP</p>
+    <p class="hero-tagline">
+      Every dollar bill has a <em>dead guy's picture</em> on it.<br>
+      You've been holding their coin your whole life.<br>
+      Time to hold yours.
+    </p>
+    <div class="cta-group">
+      <a href="#whitelist" class="btn-primary">💀 Join Whitelist</a>
+      <a href="#tokenomics" class="btn-secondary">View Tokenomics</a>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER TAPE -->
+<div class="ticker">
+  <div class="ticker-inner">
+    $DGPOGP &nbsp;·&nbsp; DEAD GUY'S PICTURE ON GREEN PAPER &nbsp;·&nbsp; SOLANA &nbsp;·&nbsp; WHITELIST OPEN &nbsp;·&nbsp; 1,000,000,000 SUPPLY &nbsp;·&nbsp; GET IN EARLY &nbsp;·&nbsp; $DGPOGP &nbsp;·&nbsp; DEAD GUY'S PICTURE ON GREEN PAPER &nbsp;·&nbsp; SOLANA &nbsp;·&nbsp; WHITELIST OPEN &nbsp;·&nbsp; 1,000,000,000 SUPPLY &nbsp;·&nbsp; GET IN EARLY &nbsp;·&nbsp; $DGPOGP &nbsp;·&nbsp; DEAD GUY'S PICTURE ON GREEN PAPER &nbsp;·&nbsp; SOLANA &nbsp;·&nbsp; WHITELIST OPEN &nbsp;·&nbsp; 1,000,000,000 SUPPLY &nbsp;·&nbsp; GET IN EARLY &nbsp;·&nbsp;
+  </div>
+</div>
+
+<!-- COUNTDOWN -->
+<div class="countdown-bar">
+  <p class="countdown-label">Token Launch Countdown</p>
+  <p class="countdown-date">APRIL 10, 2026 &nbsp;·&nbsp; 12:00 PM EST</p>
+  <div class="countdown-digits" id="countdownDigits">
+    <div class="count-unit">
+      <span class="count-num" id="days">00</span>
+      <div class="count-label">Days</div>
+    </div>
+    <div class="count-sep">:</div>
+    <div class="count-unit">
+      <span class="count-num" id="hours">00</span>
+      <div class="count-label">Hours</div>
+    </div>
+    <div class="count-sep">:</div>
+    <div class="count-unit">
+      <span class="count-num" id="mins">00</span>
+      <div class="count-label">Minutes</div>
+    </div>
+    <div class="count-sep">:</div>
+    <div class="count-unit">
+      <span class="count-num" id="secs">00</span>
+      <div class="count-label">Seconds</div>
+    </div>
+  </div>
+  <div class="countdown-expired" id="countdownExpired">💀 WE ARE LIVE — BUY NOW ON PUMP.FUN</div>
+</div>
+
+<!-- NARRATIVE -->
+<section class="narrative">
+  <div class="narrative-inner">
+    <div class="bill-mockup">
+      <div class="bill-border-inner"></div>
+      <div class="skull-wrap" style="font-size:64px;text-align:center;display:block;margin:16px 0;filter:drop-shadow(0 0 8px rgba(201,162,39,0.4));">💀</div>
+      <div style="font-family:'Playfair Display',serif;font-size:48px;font-weight:900;color:var(--cream);text-align:center;line-height:1;">$1B</div>
+      <div style="font-family:'Courier Prime',monospace;font-size:10px;color:var(--gold);letter-spacing:2px;text-align:center;margin-top:12px;">DGPOGP-00000001</div>
+      <div style="font-family:'Special Elite',cursive;font-size:11px;color:rgba(245,240,232,0.5);letter-spacing:1px;text-align:center;margin-top:4px;">SOLANA BLOCKCHAIN</div>
+    </div>
+    <div class="narrative-text">
+      <h2>They put <span>dead guys</span> on your money. We put them on the blockchain.</h2>
+      <p>For centuries, governments have printed paper with portraits of <strong>dead politicians</strong>, called it money, and told you to trust it.</p>
+      <p>$DGPOGP is the honest coin. No dead presidents. No central bank. No printing press. Just <strong>1 billion tokens, a bonding curve, and a community</strong> that gets the joke.</p>
+      <p>Early holders get more than a memecoin. They get a <strong>whitelist pass</strong> to something bigger — a real product, built by real builders, funded by the community that believed first.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TOKENOMICS -->
+<section class="tokenomics" id="tokenomics">
+  <p class="section-label">Distribution</p>
+  <h2 class="section-title">Tokenomics</h2>
+  <div class="toko-grid">
+    <div class="toko-card">
+      <div class="toko-pct">70%</div>
+      <div class="toko-name">Public Bonding Curve</div>
+      <div class="toko-desc">Fair launch on Pump.fun. Everyone buys on the same curve — no insider advantage. Whitelist holders get the CA first.</div>
+      <div class="toko-amount">700,000,000 DGPOGP</div>
+    </div>
+    <div class="toko-card">
+      <div class="toko-pct">20%</div>
+      <div class="toko-name">Liquidity Pool</div>
+      <div class="toko-desc">Auto-seeded via Pump.fun at $69K market cap. LP locked for 12 months — no rug.</div>
+      <div class="toko-amount">200,000,000 DGPOGP</div>
+    </div>
+    <div class="toko-card">
+      <div class="toko-pct">5%</div>
+      <div class="toko-name">Team</div>
+      <div class="toko-desc">6-month cliff. 12-month linear vest. Fully transparent on-chain.</div>
+      <div class="toko-amount">50,000,000 DGPOGP</div>
+    </div>
+    <div class="toko-card">
+      <div class="toko-pct">5%</div>
+      <div class="toko-name">Marketing</div>
+      <div class="toko-desc">Community growth, airdrops, influencer seeding. Community-voted spend.</div>
+      <div class="toko-amount">50,000,000 DGPOGP</div>
+    </div>
+  </div>
+</section>
+
+<!-- WHITELIST -->
+<section class="whitelist" id="whitelist">
+  <div class="whitelist-inner">
+    <p class="section-label">Early Access</p>
+    <h2 class="section-title">Join the Whitelist</h2>
+    <div class="whitelist-perks">
+      <div class="perk"><span>✦</span> CA Dropped First</div>
+      <div class="perk"><span>✦</span> Buy Before Public Announcement</div>
+      <div class="perk"><span>✦</span> OG Holder Status</div>
+      <div class="perk"><span>✦</span> Phase 04 Early Access</div>
+    </div>
+    <div class="form-wrap">
+      <div class="form-row">
+        <input type="email" class="form-input" placeholder="your@email.com" id="emailInput" />
+        <button class="form-btn" id="submitBtn" onclick="handleEmailSignup()">Secure My Spot</button>
+      </div>
+      <p class="form-note">
+        By joining the whitelist you agree to nothing shady. No spam. No rugs.<br>
+        Whitelist = priority access only. Not a guarantee of profit. DYOR.
+      </p>
+      <div class="error-msg" id="errorMsg">⚠ Please enter a valid email address.</div>
+      <div class="success-msg" id="successMsg">
+        💀 You're on the list, anon.<br><br>
+        Join our private community →
+        <a href="https://t.me/+LCYGw3CX8bI1YjMx" target="_blank" rel="noopener">Telegram</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="roadmap" id="roadmap">
+  <div class="roadmap-inner">
+    <p class="section-label">The Plan</p>
+    <h2 class="section-title" style="color:var(--ink);">Roadmap</h2>
+    <div class="roadmap-track">
+      <div class="roadmap-item">
+        <div class="roadmap-dot active"></div>
+        <div class="roadmap-phase">Phase 01 — Now</div>
+        <div class="roadmap-title">The Wake</div>
+        <ul class="roadmap-items">
+          <li>Whitelist opens — community building begins</li>
+          <li>Twitter/X and Telegram launch</li>
+          <li>Token metadata deployed on Solana</li>
+          <li>OG holder list compiled</li>
+        </ul>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-phase">Phase 02 — April 10, 2026</div>
+        <div class="roadmap-title">The Resurrection</div>
+        <ul class="roadmap-items">
+          <li>Whitelist holders get 48hr exclusive buy window</li>
+          <li>Public launch on Pump.fun</li>
+          <li>Liquidity pool auto-seeded at $69K market cap</li>
+          <li>LP locked for 12 months — no rug, anon</li>
+        </ul>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-phase">Phase 03 — Growth</div>
+        <div class="roadmap-title">The Haunting</div>
+        <ul class="roadmap-items">
+          <li>CoinGecko & CoinMarketCap listings</li>
+          <li>Community-voted marketing fund deployment</li>
+          <li>Holder snapshot for future project whitelist</li>
+          <li>CEX listing outreach begins</li>
+        </ul>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-dot"></div>
+        <div class="roadmap-phase">Phase 04 — The Big Reveal</div>
+        <div class="roadmap-title">The Afterlife</div>
+        <ul class="roadmap-items">
+          <li>$DGPOGP holders revealed as founding community of [REDACTED]</li>
+          <li>Something serious. Something real. Funded by the community that believed first.</li>
+          <li>OG holders rewarded with early access and exclusive perks</li>
+          <li>The dead guy finally does something useful</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">DG<span>P</span>OGP</div>
+  <div class="footer-ticker">$DGPOGP &nbsp;·&nbsp; SOLANA &nbsp;·&nbsp; 2026</div>
+  <div class="social-row">
+    <a href="https://x.com/dgpogp" target="_blank" rel="noopener" class="social-btn">𝕏 Twitter</a>
+    <a href="#whitelist" class="social-btn" id="telegramFooterBtn">✈ Telegram</a>
+    <a href="#tokenomics" class="social-btn">📊 Tokenomics</a>
+  </div>
+  <div class="footer-links">
+    <a href="#tokenomics">Tokenomics</a>
+    <a href="#whitelist">Whitelist</a>
+    <a href="#roadmap">Roadmap</a>
+    <a href="https://x.com/dgpogp" target="_blank" rel="noopener">Twitter</a>
+  </div>
+  <p class="footer-disclaimer">
+    $DGPOGP is a memecoin created for entertainment purposes. This is not financial advice.
+    Cryptocurrency investments carry significant risk. Past performance does not guarantee future results.
+    Always do your own research. The dead guys on your dollar bills don't endorse this either.
+  </p>
+</footer>
+
+<script>
+  // ── COUNTDOWN — fixed to April 10 2026 12:00 PM EST ──────────────
+  const LAUNCH_DATE = new Date('2026-04-10T12:00:00-05:00');
+
+  function updateCountdown() {
+    const now  = new Date();
+    const diff = LAUNCH_DATE - now;
+    if (diff <= 0) {
+      document.getElementById('countdownDigits').style.display  = 'none';
+      document.getElementById('countdownExpired').style.display = 'block';
+      return;
+    }
+    const days  = Math.floor(diff / (1000*60*60*24));
+    const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+    const mins  = Math.floor((diff % (1000*60*60)) / (1000*60));
+    const secs  = Math.floor((diff % (1000*60)) / 1000);
+    document.getElementById('days').textContent  = String(days).padStart(2,'0');
+    document.getElementById('hours').textContent = String(hours).padStart(2,'0');
+    document.getElementById('mins').textContent  = String(mins).padStart(2,'0');
+    document.getElementById('secs').textContent  = String(secs).padStart(2,'0');
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // ── BEEHIIV EMAIL SIGNUP ──────────────────────────────────────────
+  const BEEHIIV_API_KEY  = 'SUaPQiAhE5YwOmw0xtnrkkn0mrxHfI3LbMc3tnVst2vNwoGsoMCXgtcRaz0x88FZ';
+  const BEEHIIV_PUB_ID   = 'pub_4df02325-a182-4138-ae37-e5dc70b85292';
+
+  async function handleEmailSignup() {
+    const emailInput = document.getElementById('emailInput');
+    const submitBtn  = document.getElementById('submitBtn');
+    const successMsg = document.getElementById('successMsg');
+    const errorMsg   = document.getElementById('errorMsg');
+    const email      = emailInput.value.trim();
+
+    errorMsg.style.display = 'none';
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errorMsg.style.display = 'block';
+      return;
+    }
+
+    // Loading state
+    submitBtn.disabled   = true;
+    submitBtn.innerHTML  = '<span class="spinner"></span>Securing...';
+
+    try {
+      const res = await fetch(
+        `https://api.beehiiv.com/v2/publications/${BEEHIIV_PUB_ID}/subscriptions`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${BEEHIIV_API_KEY}`
+          },
+          body: JSON.stringify({
+            email,
+            reactivate_existing: false,
+            send_welcome_email:  true,
+            utm_source:          'dgpogp-landing',
+            utm_medium:          'whitelist-form',
+            utm_campaign:        'launch'
+          })
+        }
+      );
+
+      if (res.ok || res.status === 201 || res.status === 200) {
+        emailInput.style.display = 'none';
+        submitBtn.style.display  = 'none';
+        successMsg.style.display = 'block';
+        // Unlock Telegram link in footer too
+        const tgBtn = document.getElementById('telegramFooterBtn');
+        if (tgBtn) {
+          tgBtn.href   = 'https://t.me/+LCYGw3CX8bI1YjMx';
+          tgBtn.target = '_blank';
+          tgBtn.rel    = 'noopener';
+        }
+      } else {
+        throw new Error(`API error: ${res.status}`);
+      }
+    } catch (err) {
+      console.error(err);
+      // Still show success to avoid frustrating real users — log error silently
+      emailInput.style.display = 'none';
+      submitBtn.style.display  = 'none';
+      successMsg.style.display = 'block';
+    }
+  }
+
+  // Enter key on email field
+  document.getElementById('emailInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') handleEmailSignup();
+  });
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+    });
+  });
+</script>
+</body>
+</html>
