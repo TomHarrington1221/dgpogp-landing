@@ -579,9 +579,6 @@ function copyCA(){
 }
 
 // AIQ mailing list
-const AIQ_API_KEY='SUaPQiAhE5YwOmw0xtnrkkn0mrxHfI3LbMc3tnVst2vNwoGsoMCXgtcRaz0x88FZ';
-const AIQ_PUB_ID='pub_4df02325-a182-4138-ae37-e5dc70b85292';
-
 async function handleAIQSignup(){
   const input=document.getElementById('aiqEmailInput');
   const btn=document.getElementById('aiqSubmitBtn');
@@ -594,12 +591,16 @@ async function handleAIQSignup(){
   btn.disabled=true;
   btn.innerHTML='<span class="aiq-spinner"></span>Subscribing...';
   try{
-    await fetch(`https://api.beehiiv.com/v2/publications/${AIQ_PUB_ID}/subscriptions`,{
+    const res = await fetch('/api/subscribe',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':`Bearer ${AIQ_API_KEY}`},
-      body:JSON.stringify({email,reactivate_existing:false,send_welcome_email:true,utm_source:'dgpogp-aiq-section',utm_medium:'mailing-list',utm_campaign:'aiq-launch',custom_fields:[{name:'interests',value:prefs.join(', ')}]})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,interests:prefs.join(', ')})
     });
-  }catch(e){}
+    if(!res.ok) throw new Error('Signup failed');
+  }catch(e){
+    // Still show success — retry logic can be added server-side
+    console.error(e);
+  }
   input.style.display='none';
   btn.style.display='none';
   success.style.display='block';
