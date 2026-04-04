@@ -257,7 +257,7 @@ footer{background:#020b18;border-top:1px solid rgba(56,189,248,0.1);padding:48px
     <a href="#engine">How It Works</a>
     <a href="#roadmap">Roadmap</a>
     <a href="#howtobuy">How to Buy</a>
-    <a href="https://pump.fun/coin/TBD" target="_blank" rel="noopener" id="pumpBtn" class="nav-cta">🚀 Buy on Pump.fun</a>
+    <a href="https://pump.fun/coin/AFzBkMYMMrCLo3TjXovPQuhpzaGLbZXhifeJW71xpump" target="_blank" rel="noopener" id="pumpBtn" class="nav-cta">🚀 Buy on Pump.fun</a>
   </div>
 </nav>
 
@@ -376,7 +376,7 @@ footer{background:#020b18;border-top:1px solid rgba(56,189,248,0.1);padding:48px
 
     <div class="ca-box">
       <div class="ca-label">Contract Address</div>
-      <div class="ca-value" id="caValue">TBA — Drop day announcement</div>
+      <div class="ca-value" id="caValue">AFzBkMYMMrCLo3TjXovPQuhpzaGLbZXhifeJW71xpump</div>
       <button class="ca-copy" onclick="copyCA()" id="copyBtn">Copy</button>
     </div>
 
@@ -399,7 +399,7 @@ footer{background:#020b18;border-top:1px solid rgba(56,189,248,0.1);padding:48px
         <div class="htb-num">03</div>
         <div class="htb-content">
           <div class="htb-title">Go to Pump.fun</div>
-          <div class="htb-desc">Head to <a href="https://pump.fun" target="_blank" rel="noopener">pump.fun</a>, paste the $DGPOGP contract address, and connect your wallet. Set slippage to 5–10% for a smooth fill.</div>
+          <div class="htb-desc">Head to <a href="https://pump.fun/coin/AFzBkMYMMrCLo3TjXovPQuhpzaGLbZXhifeJW71xpump" target="_blank" rel="noopener">pump.fun</a>, search $DGPOGP or paste the contract address, and connect your wallet. Set slippage to 5–10% for a smooth fill.</div>
         </div>
       </div>
       <div class="htb-step">
@@ -570,7 +570,6 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{
 // Copy CA
 function copyCA(){
   const ca=document.getElementById('caValue').textContent;
-  if(ca.includes('TBA')) return;
   navigator.clipboard.writeText(ca).then(()=>{
     const btn=document.getElementById('copyBtn');
     btn.textContent='Copied!';
