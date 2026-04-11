@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MessageBubble } from './MessageBubble'
 import { MessageInput } from './MessageInput'
-import { AGENT_DISPLAY_NAMES } from '@/lib/agents'
+import { AGENT_DISPLAY_NAMES } from '@/lib/agents/types'
 import { cn } from '@/lib/utils'
 import type { AgentType, User } from '@aiq/db'
 

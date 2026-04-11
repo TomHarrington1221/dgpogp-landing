@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { ChatInterface } from '@/components/chat/ChatInterface'
 import type { AgentType } from '@aiq/db'
-import { AVAILABLE_AGENTS } from '@/lib/agents'
+import { AVAILABLE_AGENTS } from '@/lib/agents/types'
 
 interface ChatPageProps {
   searchParams: Promise<{ agent?: string }>

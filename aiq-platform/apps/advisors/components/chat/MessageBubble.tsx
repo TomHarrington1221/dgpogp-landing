@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { AGENT_DISPLAY_NAMES } from '@/lib/agents'
+import { AGENT_DISPLAY_NAMES } from '@/lib/agents/types'
 import type { AgentType } from '@aiq/db'
 
 interface MessageBubbleProps {
